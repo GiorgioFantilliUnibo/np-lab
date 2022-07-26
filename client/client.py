@@ -15,7 +15,7 @@ while(True):
     
     if value == '1':
         data, server = sock.recvfrom(4096)
-        print(data.decode())
+        print(data.decode() + '\r\n')
         
     elif value == '2':
         file = input('Inserisci il nome del file da scaricare: ')
@@ -32,9 +32,9 @@ while(True):
             except socket.timeout:
                 f.close()
                 sock.settimeout(None)
-                print('\r\nFile scaricato con successo\r\n')
+                print('\r\nFile scaricato con successo\r\n\r\n')
         else:
-            print('\r\nFile non trovato sul server\r\n')
+            print('\r\nFile non trovato sul server\r\n\r\n')
             
     elif value == '3':
         file = input('Inserisci il nome del file da caricare: ')
@@ -48,10 +48,10 @@ while(True):
             f.close()
             data, server = sock.recvfrom(4096)
             if data.decode() == '0':
-                print('\r\nFile caricato con successo\r\n')
+                print('\r\nFile caricato con successo\r\n\r\n')
         except FileNotFoundError:
             sock.sendto(''.encode(), server_addr) 
-            print('\r\nFile locale non trovato\r\n')
+            print('\r\nFile locale non trovato\r\n\r\n')
             
     elif value == '4':
         break

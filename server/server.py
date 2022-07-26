@@ -7,7 +7,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 addr = (ip, port)
 sock.bind(addr)
   
-welcome_message = ('\r\nBenvenuto sul Server\r\n\r\nOpzioni Disponibili\r\n\r\n'
+welcome_message = ('\r\n\r\nBenvenuto sul Server\r\n\r\nOpzioni Disponibili\r\n\r\n'
                    + '1. Visualizzazione dei file disponibili\r\n'
                    + '2. Download di un file\r\n'
                    + '3. Upload di un file\r\n'
