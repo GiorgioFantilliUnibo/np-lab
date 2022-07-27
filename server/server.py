@@ -9,15 +9,15 @@ def signal_handler(signal, frame):
         print('\r\n Ctrl + C pressed: exit from the server \r\n')
         sys.exit(0)
 
-def set_connection(ip, port, port_list):
+def set_connection(ip, port, port_dict):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    port = port + random.randint(1, 100)
+    new_port = port + random.randint(1, 100)
     lock.acquire()
-    while port in port_dict.values():
-        port = port + random.randint(1, 100)
-    port_dict[sock] = port
+    while new_port in port_dict.values():
+        new_port = port + random.randint(1, 100)
+    port_dict[sock] = new_port
     lock.release()
-    addr = (ip, port)
+    addr = (ip, new_port)
     sock.bind(addr)
     return sock, port_dict
 
@@ -110,4 +110,5 @@ signal.signal(signal.SIGINT, signal_handler)
 while (True):
     data, client_address = sock.recvfrom(1024)
     s, port_dict = set_connection(ip, port, port_dict)
+    print(port_dict)
     daemon(s, client_address).start()
