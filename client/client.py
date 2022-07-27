@@ -1,9 +1,21 @@
-import socket, sys
+import socket, sys, signal
+
+
+def signal_handler(signal, frame):
+    try:
+      if( sock ):
+        sock.close()
+    finally:
+        print('\r\n Ctrl + C pressed: exit from the client \r\n')
+        sys.exit(0)
+
 
 if len(sys.argv) != 2:
     print('\r\n ! Indicare il numero di porta del server !')
     sys.exit()
     
+signal.signal(signal.SIGINT, signal_handler)
+
 server_ip = '127.0.0.1'
 server_port = int(sys.argv[1])
 
@@ -12,7 +24,14 @@ server_addr = (server_ip, server_port)
 
 sock.sendto('hello'.encode(), server_addr)
 data, server_addr = sock.recvfrom(4096)
-print(data.decode())
+data = data.decode()
+
+if data == 'full':
+    print('\r\n Il server non può gestire nuovi client, riprovare più tardi\r\n')
+    sock.close()
+    sys.exit(1)
+
+print(data)
 
 while(True):
     value = input('Scegli l\'operazione da eseguire: ')

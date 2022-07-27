@@ -10,16 +10,22 @@ def signal_handler(signal, frame):
         sys.exit(0)
 
 def set_connection():
-    new_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    new_port = port + random.randint(1, 100)
+    flag = True
     lock.acquire()
-    while new_port in port_dict.values():
+    if len(port_dict) != 100:
+        new_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         new_port = port + random.randint(1, 100)
-    port_dict[sock] = new_port
-    lock.release()
-    addr = (ip, new_port)
-    new_sock.bind(addr)
-    return new_sock, port_dict
+        while new_port in port_dict.values():
+            new_port = port + random.randint(1, 100)
+        port_dict[sock] = new_port
+        lock.release()
+        addr = (ip, new_port)
+        new_sock.bind(addr)
+    else:
+        lock.release()
+        flag = False
+        new_sock = None
+    return flag, new_sock, port_dict
 
 class daemon(threading.Thread):
     def __init__(self, s, client_address):
@@ -109,5 +115,8 @@ signal.signal(signal.SIGINT, signal_handler)
 
 while (True):
     data, client_address = sock.recvfrom(1024)
-    s, port_dict = set_connection()
-    daemon(s, client_address).start()
+    flag, s, port_dict = set_connection()
+    if flag:
+        daemon(s, client_address).start()
+    else:
+        sock.sendto('full'.encode(), client_address)
