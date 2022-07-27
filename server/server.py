@@ -12,9 +12,11 @@ def signal_handler(signal, frame):
 def set_connection(ip, port, port_list):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     port = port + random.randint(1, 100)
+    lock.acquire()
     while port in port_dict.values():
         port = port + random.randint(1, 100)
     port_dict[sock] = port
+    lock.release()
     addr = (ip, port)
     sock.bind(addr)
     return sock, port_dict
