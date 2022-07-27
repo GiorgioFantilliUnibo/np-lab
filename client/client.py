@@ -1,14 +1,19 @@
-import socket
+import socket, sys
 
+if len(sys.argv) != 2:
+    print('\r\n ! Indicare il numero di porta del server !')
+    sys.exit()
+    
 server_ip = '127.0.0.1'
-server_port = 321
+server_port = int(sys.argv[1])
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
 server_addr = (server_ip, server_port)
 
 sock.sendto('hello'.encode(), server_addr)
-data, server = sock.recvfrom(4096)
+data, server_addr = sock.recvfrom(4096)
 print(data.decode())
+
 while(True):
     value = input('Scegli l\'operazione da eseguire: ')
     sock.sendto(value.encode(), server_addr)
