@@ -11,18 +11,18 @@ def signal_handler(signal, frame):
 
 def set_connection():
     flag = True
-    lock.acquire()
+    dict_lock.acquire()
     if len(port_dict) != 100:
         new_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         new_port = port + random.randint(1, 100)
         while new_port in port_dict.values():
             new_port = port + random.randint(1, 100)
         port_dict[sock] = new_port
-        lock.release()
+        dict_lock.release()
         addr = (ip, new_port)
         new_sock.bind(addr)
     else:
-        lock.release()
+        dict_lock.release()
         flag = False
         new_sock = None
     return flag, new_sock, port_dict
@@ -41,13 +41,13 @@ class daemon(threading.Thread):
             print('\r\n Command: ' + data)
             
             if data == '1':
-                lock.acquire()
+                file_lock.acquire()
                 data = '\r\n'+str(os.listdir())+'\r\n'
                 self.sock.sendto(data.encode(), client_address)
-                lock.release()
+                file_lock.release()
                 
             elif data == '2':
-                lock.acquire()
+                file_lock.acquire()
                 data, client_address = self.sock.recvfrom(4096)        
                 try:
                     f = open(data.decode().strip(),'rb')
@@ -59,10 +59,10 @@ class daemon(threading.Thread):
                     f.close()
                 except FileNotFoundError:
                     self.sock.sendto('1'.encode(), client_address)
-                lock.release()
+                file_lock.release()
                 
             elif data == '3':
-                lock.acquire()
+                file_lock.acquire()
                 data, client_address = self.sock.recvfrom(4096)
                 if data.decode() != '':
                     f = open(data.decode().strip(),'wb')
@@ -76,7 +76,7 @@ class daemon(threading.Thread):
                         f.close()
                         self.sock.settimeout(None)
                     self.sock.sendto('0'.encode(), client_address)
-                lock.release()
+                file_lock.release()
                 
             elif data == '4':
                 break
@@ -85,9 +85,9 @@ class daemon(threading.Thread):
                 self.sock.sendto(welcome_message.encode(), client_address)
         
         self.sock.close()
-        lock.acquire()
+        dict_lock.acquire()
         port_dict.pop(self.sock)
-        lock.release()
+        dict_lock.release()
 
 
 if len(sys.argv) != 2:
@@ -102,7 +102,8 @@ addr = (ip, port)
 sock.bind(addr)
 port_dict = dict()
 
-lock = threading.Lock()
+dict_lock = threading.Lock()
+file_lock = threading.Lock()
   
 welcome_message = ('\r\n\r\nBenvenuto sul Server\r\n\r\nOpzioni Disponibili\r\n\r\n'
                    + '1. Visualizzazione dei file disponibili\r\n'
